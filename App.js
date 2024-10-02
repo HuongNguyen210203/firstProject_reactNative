@@ -1,50 +1,23 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, CheckBox } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import Login from './app/screens/login'; // Make sure the path is correct
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 export default function App() {
     const [isChecked, setChecked] = useState(false);
+    const Stack = createNativeStackNavigator();
 
     return (
-        <View style={styles.container}>
-            {/* Nút back */}
-            <TouchableOpacity style={styles.backButton}>
-                <Text style={styles.backButtonText}>←</Text>
-            </TouchableOpacity>
-
-
-
-            {/* Tiêu đề đăng nhập */}
-            <Text style={styles.title}>Login to your account</Text>
-
-            {/* Input Email */}
-            <TextInput
-                placeholder="Email"
-                style={styles.input}
-                keyboardType="email-address"
-            />
-
-            {/* Input Password */}
-            <TextInput
-                placeholder="Password"
-                style={styles.input}
-                secureTextEntry={true}
-            />
-
-
-
-            {/* Nút Log in */}
-            <TouchableOpacity style={styles.loginButton}>
-                <Text style={styles.loginButtonText}>Log in</Text>
-            </TouchableOpacity>
-
-            {/* Liên kết Forgot Password */}
-            <TouchableOpacity>
-                <Text style={styles.forgotPassword}>Forgot the password?</Text>
-            </TouchableOpacity>
-        </View>
+        <NavigationContainer>
+            <Stack.Navigator initialRouteName="Login">
+                <Stack.Screen name='Login' component={Login} options={{ headerShown: false }} />
+            </Stack.Navigator>
+        </NavigationContainer>
     );
 }
 
+// Uncomment and adjust styles as needed
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -61,12 +34,6 @@ const styles = StyleSheet.create({
     backButtonText: {
         fontSize: 24,
     },
-    image: {
-        width: 200,
-        height: 200,
-        resizeMode: 'contain',
-        marginBottom: 20,
-    },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
@@ -81,32 +48,5 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         marginBottom: 15,
     },
-    checkboxContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    checkbox: {
-        marginRight: 8,
-    },
-    label: {
-        fontSize: 16,
-    },
-    loginButton: {
-        backgroundColor: '#FF6B3C',
-        width: '100%',
-        padding: 15,
-        borderRadius: 30,
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    loginButtonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    forgotPassword: {
-        color: '#FF6B3C',
-        fontSize: 16,
-    },
+    // Add other styles as necessary
 });
