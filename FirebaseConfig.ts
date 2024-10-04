@@ -1,12 +1,9 @@
-// Import the functions you need from the SDKs you need
+// FirebaseConfig.js
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth"; // Ensure you import setPersistence
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Ensure you're importing AsyncStorage
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
     apiKey: "AIzaSyA0_if_J3ng3_Yb7VWWtwpOr2aAXUcM-Ic",
     authDomain: "reanatauth.firebaseapp.com",
@@ -18,5 +15,20 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-export const FIREBASE_APP = initializeApp(firebaseConfig);
-export const FIREBASE_AUTH = getAuth(FIREBASE_APP);
+const FIREBASE_APP = initializeApp(firebaseConfig);
+
+// Initialize Firebase Auth
+const FIREBASE_AUTH = getAuth(FIREBASE_APP);
+
+// Set persistence
+setPersistence(FIREBASE_AUTH, browserLocalPersistence)
+    .then(() => {
+        console.log("Persistence set to browserLocalPersistence.");
+        // Now you can proceed to use FIREBASE_AUTH for authentication
+    })
+    .catch((error) => {
+        console.error("Error setting persistence: ", error);
+    });
+
+// Export the initialized Firebase app and auth instance
+export { FIREBASE_APP, FIREBASE_AUTH };
