@@ -12,7 +12,7 @@ import {
     Pressable
 } from 'react-native';
 import { FIREBASE_AUTH } from '../../FirebaseConfig';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendEmailVerification } from 'firebase/auth'; // Import sendEmailVerification
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -27,8 +27,10 @@ const Login = () => {
             const response = await signInWithEmailAndPassword(auth, email, password);
             console.log(response);
             // Navigate to the next screen or handle success
+            Alert.alert('Sign in successful');
         } catch (error: any) {
             console.error(error);
+            console.error("Sign in error code: ", error.code); // Log error code
             Alert.alert('Sign in failed', error.message);
         } finally {
             setLoading(false);
@@ -40,23 +42,35 @@ const Login = () => {
             setLoading(true);
             const response = await createUserWithEmailAndPassword(auth, email, password);
             console.log(response);
-            // Handle success, maybe navigate or show a message
+
+            // Send email verification
+            await sendEmailVerification(response.user); // Correctly call sendEmailVerification
+            Alert.alert('Check your email for verification');
         } catch (error: any) {
             console.error(error);
-            Alert.alert('Sign up failed', error.message);
+            Alert.alert('Sign up failed: ' + error.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const logout = async () => {
+        try {
+            await signOut(auth);
+            Alert.alert('Logged out successfully');
+        } catch (error) {
+            console.error('Logout failed: ', error);
         }
     };
 
     return (
         <KeyboardAvoidingView
             style={styles.container}
-            behavior="height" // 'height' works well for Android to adjust the layout when the keyboard is visible
+            behavior="height"
         >
             <Button
                 title="Show Login Modal"
-                onPress={() => setModalVisible(true)} // Open modal
+                onPress={() => setModalVisible(true)}
             />
 
             {/* Modal Component */}

@@ -1,52 +1,63 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
-import Login from './app/screens/login'; // Make sure the path is correct
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import Login from './app/screens/login';
+import List from './app/screens/List';
+import Details from './app/screens/Details';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+
+const Stack = createNativeStackNavigator();
+const InsideStack = createNativeStackNavigator();
+
+function InsideStackScreen() {
+    return (
+        <InsideStack.Navigator initialRouteName="List">
+            <InsideStack.Screen name='List' component={List} options={{ headerShown: false }} />
+            <InsideStack.Screen name='Details' component={Details} options={{ headerShown: false }} />
+        </InsideStack.Navigator>
+    );
+}
 
 export default function App() {
+    const [user, setUser] = useState(null);
     const [isChecked, setChecked] = useState(false);
-    const Stack = createNativeStackNavigator();
+
+    useEffect(() => {
+        const auth = getAuth();
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+            setChecked(true);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    if (!isChecked) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+        );
+    }
 
     return (
         <NavigationContainer>
-            <Stack.Navigator initialRouteName="Login">
-                <Stack.Screen name='Login' component={Login} options={{ headerShown: false }} />
+            <Stack.Navigator initialRouteName={user ? "InsideStack" : "Login"}>
+                {user ? (
+                    <Stack.Screen name='InsideStack' component={InsideStackScreen} options={{ headerShown: false }} />
+                ) : (
+                    <Stack.Screen name='Login' component={Login} options={{ headerShown: false }} />
+                )}
             </Stack.Navigator>
         </NavigationContainer>
     );
 }
 
-// Uncomment and adjust styles as needed
 const styles = StyleSheet.create({
-    container: {
+    loadingContainer: {
         flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
         justifyContent: 'center',
-        paddingHorizontal: 20,
+        alignItems: 'center',
     },
-    backButton: {
-        position: 'absolute',
-        top: 40,
-        left: 20,
-    },
-    backButtonText: {
-        fontSize: 24,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
-    input: {
-        width: '100%',
-        height: 50,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        marginBottom: 15,
-    },
-    // Add other styles as necessary
 });
