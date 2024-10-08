@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
-import Login from './app/screens/login';
+import Login from './app/screens/Login';
 import List from './app/screens/List';
 import Details from './app/screens/Details';
 import { NavigationContainer } from '@react-navigation/native';

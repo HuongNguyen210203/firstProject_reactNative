@@ -12,13 +12,14 @@ import {
     Pressable
 } from 'react-native';
 import { FIREBASE_AUTH } from '../../FirebaseConfig';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendEmailVerification } from 'firebase/auth'; // Import sendEmailVerification
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendEmailVerification } from 'firebase/auth';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false);
+    const [signInModalVisible, setSignInModalVisible] = useState(false);
+    const [signUpModalVisible, setSignUpModalVisible] = useState(false);
     const auth = FIREBASE_AUTH;
 
     const signIn = async () => {
@@ -26,11 +27,9 @@ const Login = () => {
             setLoading(true);
             const response = await signInWithEmailAndPassword(auth, email, password);
             console.log(response);
-            // Navigate to the next screen or handle success
             Alert.alert('Sign in successful');
         } catch (error: any) {
             console.error(error);
-            console.error("Sign in error code: ", error.code); // Log error code
             Alert.alert('Sign in failed', error.message);
         } finally {
             setLoading(false);
@@ -42,10 +41,10 @@ const Login = () => {
             setLoading(true);
             const response = await createUserWithEmailAndPassword(auth, email, password);
             console.log(response);
-
-            // Send email verification
-            await sendEmailVerification(response.user); // Correctly call sendEmailVerification
+            await sendEmailVerification(response.user);
             Alert.alert('Check your email for verification');
+            setSignUpModalVisible(false);
+            setSignInModalVisible(true);
         } catch (error: any) {
             console.error(error);
             Alert.alert('Sign up failed: ' + error.message);
@@ -70,23 +69,19 @@ const Login = () => {
         >
             <Button
                 title="Show Login Modal"
-                onPress={() => setModalVisible(true)}
+                onPress={() => setSignInModalVisible(true)}
             />
 
-            {/* Modal Component */}
+            {/* Sign-in Modal */}
             <Modal
                 animationType="slide"
                 transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                    setModalVisible(!modalVisible);
-                }}
+                visible={signInModalVisible}
+                onRequestClose={() => setSignInModalVisible(false)}
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalView}>
                         <Text style={styles.modalText}>Login</Text>
-
-                        {/* Email Input */}
                         <TextInput
                             value={email}
                             style={styles.input}
@@ -94,8 +89,6 @@ const Login = () => {
                             autoCapitalize="none"
                             onChangeText={setEmail}
                         />
-
-                        {/* Password Input */}
                         <TextInput
                             value={password}
                             style={styles.input}
@@ -103,18 +96,16 @@ const Login = () => {
                             secureTextEntry={true}
                             onChangeText={setPassword}
                         />
-
-                        {/* Modal Buttons */}
                         <View style={styles.modalButtons}>
                             <Pressable
                                 style={[styles.button, styles.buttonClose]}
-                                onPress={() => setModalVisible(!modalVisible)} // Close modal
+                                onPress={() => setSignInModalVisible(false)}
                             >
                                 <Text style={styles.textStyle}>Cancel</Text>
                             </Pressable>
                             <Pressable
                                 style={[styles.button, styles.buttonPrimary]}
-                                onPress={signIn} // Sign in action
+                                onPress={signIn}
                             >
                                 {loading ? (
                                     <ActivityIndicator size="small" color="#fff" />
@@ -125,10 +116,70 @@ const Login = () => {
                         </View>
 
                         <Pressable
-                            onPress={signUp}
+                            onPress={() => {
+                                setSignInModalVisible(false);
+                                setSignUpModalVisible(true);
+                            }}
                             style={styles.signupLink}
                         >
                             <Text style={styles.signupText}>Don't have an account? Sign up here</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Sign-up Modal */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={signUpModalVisible}
+                onRequestClose={() => setSignUpModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalView}>
+                        <Text style={styles.modalText}>Sign Up</Text>
+                        <TextInput
+                            value={email}
+                            style={styles.input}
+                            placeholder="Email"
+                            autoCapitalize="none"
+                            onChangeText={setEmail}
+                        />
+                        <TextInput
+                            value={password}
+                            style={styles.input}
+                            placeholder="Password"
+                            secureTextEntry={true}
+                            onChangeText={setPassword}
+                        />
+                        <View style={styles.modalButtons}>
+                            <Pressable
+                                style={[styles.button, styles.buttonClose]}
+                                onPress={() => setSignUpModalVisible(false)}
+                            >
+                                <Text style={styles.textStyle}>Cancel</Text>
+                            </Pressable>
+                            <Pressable
+                                style={[styles.button, styles.buttonPrimary]}
+                                onPress={signUp}
+                            >
+                                {loading ? (
+                                    <ActivityIndicator size="small" color="#fff" />
+                                ) : (
+                                    <Text style={styles.textStyle}>Sign up</Text>
+                                )}
+                            </Pressable>
+                        </View>
+
+                        {/* Already have an account? Sign in here */}
+                        <Pressable
+                            onPress={() => {
+                                setSignUpModalVisible(false);
+                                setSignInModalVisible(true);
+                            }}
+                            style={styles.signupLink}
+                        >
+                            <Text style={styles.signupText}>Already have an account? Sign in here</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -137,7 +188,7 @@ const Login = () => {
     );
 };
 
-// Define your styles here
+// Define styles
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -156,7 +207,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dim background
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalView: {
         width: '80%',
